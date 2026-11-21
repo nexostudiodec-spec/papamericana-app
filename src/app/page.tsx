@@ -25,6 +25,7 @@ export default async function Home() {
         price: Number(product.price),
         tag: product.is_featured ? 'DESTACADO' : 'DISPONIBLE',
         image_url: product.image_url,
+        description: product.description,
       }));
       hasLiveProducts = true;
     }
