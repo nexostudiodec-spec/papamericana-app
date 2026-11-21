@@ -4,7 +4,7 @@ import StorefrontClient, { type StoreProduct } from './storefront-client';
 const fallbackProducts: StoreProduct[] = [];
 
 export default async function Home() {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   let categories = ['Todos', 'Hamburguesas', 'Salchipapas', 'Hot Dogs', 'Combos', 'Papas y Extras', 'Bebidas'];
   let products = fallbackProducts;
   let hasLiveProducts = false;
