@@ -101,11 +101,14 @@ export default function StorefrontClient({ categories, products, hasLiveProducts
             <a href="#catalogo" className="mt-6 inline-flex w-fit items-center gap-3 rounded-full bg-black px-6 py-3.5 text-xs font-black text-white transition hover:translate-y-[-2px] hover:bg-neutral-800">Comprar ahora <ArrowRight size={16}/></a>
           </div>
           <div className="pointer-events-none absolute bottom-0 right-0 top-0 hidden w-[53%] lg:block">
-            <div className="absolute right-[7%] top-[13%] grid h-[260px] w-[260px] place-items-center rounded-full bg-white/35 text-[112px] shadow-inner">🛒</div>
-            <div className="absolute right-[30%] top-[20%] rotate-[-12deg] text-[108px] drop-shadow-xl">🥑</div>
-            <div className="absolute right-[8%] top-[42%] rotate-[12deg] text-[112px] drop-shadow-xl">🥫</div>
-            <div className="absolute right-[42%] top-[52%] rotate-[-8deg] text-[94px] drop-shadow-xl">🥖</div>
-            <div className="absolute bottom-[8%] right-[17%] rotate-[9deg] text-[90px] drop-shadow-xl">🍊</div>
+            <div className="absolute right-[7%] top-[10%] h-[290px] w-[290px] rounded-full border-[34px] border-white/30 bg-[#f5bd00]/40"/>
+            <div className="absolute right-[19%] top-[24%] grid h-[205px] w-[205px] place-items-center rounded-[42px] border border-white/70 bg-white shadow-[0_24px_50px_rgba(0,0,0,.13)]">
+              <div className="grid h-[130px] w-[130px] place-items-center rounded-full bg-[#fff4bf]"><ShoppingBasket size={82} strokeWidth={1.5} className="text-black"/></div>
+              <span className="mt-2 text-[10px] font-black uppercase tracking-[.2em] text-black">Tu mercado</span>
+            </div>
+            <div className="absolute right-[62%] top-[19%] grid h-[76px] w-[76px] rotate-[-10deg] place-items-center rounded-2xl bg-white shadow-xl"><Leaf size={34}/></div>
+            <div className="absolute right-[4%] top-[50%] grid h-[82px] w-[82px] rotate-[9deg] place-items-center rounded-2xl bg-black text-[#ffd21c] shadow-xl"><Package size={36}/></div>
+            <div className="absolute bottom-[10%] right-[43%] grid h-[70px] w-[70px] rotate-[8deg] place-items-center rounded-2xl bg-white shadow-xl"><Coffee size={32}/></div>
           </div>
           <div className="absolute -bottom-10 -right-8 h-36 w-36 rounded-full bg-black/5 lg:hidden"/>
         </section>
