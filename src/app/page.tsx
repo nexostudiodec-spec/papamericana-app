@@ -2,7 +2,9 @@ import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { ArrowRight, Search, ShoppingBag, MapPin, Clock3, ShieldCheck, Truck, Menu, ChevronRight, PackageCheck, Sparkles } from 'lucide-react';
 
-const fallbackProducts = [
+type ProductCard = { id: string; name: string; category: string; price: string; tag: string; tone: string; mark: string; image_url: string | null };
+
+const fallbackProducts: ProductCard[] = [
   { id: 'demo-1', name: 'Producto destacado 01', category: 'Despensa', price: '—', tag: 'DESTACADO', tone: 'bg-amber-100', mark: '01', image_url: null },
   { id: 'demo-2', name: 'Producto destacado 02', category: 'Bebidas', price: '—', tag: 'POPULAR', tone: 'bg-sky-100', mark: '02', image_url: null },
   { id: 'demo-3', name: 'Producto destacado 03', category: 'Hogar', price: '—', tag: 'NOVEDAD', tone: 'bg-emerald-100', mark: '03', image_url: null },
@@ -12,7 +14,7 @@ const fallbackProducts = [
 export default async function Home() {
   const supabase = createSupabaseServerClient();
   let categories = ['Todos los productos', 'Despensa', 'Bebidas', 'Hogar', 'Cuidado personal'];
-  let products = fallbackProducts;
+  let products: ProductCard[] = fallbackProducts;
   let hasLiveProducts = false;
 
   if (supabase) {
@@ -29,7 +31,7 @@ export default async function Home() {
       products = productRows.map((product, index) => ({
         id: product.id,
         name: product.name,
-        category: categoryNames.get(product.category_id) ?? 'Productos',
+        category: (product.category_id ? categoryNames.get(product.category_id) : undefined) ?? 'Productos',
         price: '
   return <main className="min-h-screen overflow-hidden">
     <div className="bg-[#17233a] px-4 py-2 text-center text-xs font-medium tracking-wide text-white sm:text-sm">Pide en línea y recibe en casa · Atención cercana y rápida</div>
