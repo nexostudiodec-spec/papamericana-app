@@ -14,6 +14,7 @@ export type StoreProduct = {
   price: number;
   tag: string;
   image_url: string | null;
+  description?: string | null;
 };
 
 type Props = { categories: string[]; products: StoreProduct[]; hasLiveProducts: boolean };
@@ -41,7 +42,8 @@ export default function StorefrontClient({ categories, products, hasLiveProducts
   const filtered = useMemo(() => {
     const result = products.filter((p) => {
       const categoryMatch = activeCategory === 'Todos' || p.category === activeCategory;
-      const searchMatch = p.name.toLowerCase().includes(query.trim().toLowerCase());
+      const searchText = (p.name + ' ' + (p.description ?? '')).toLowerCase();
+      const searchMatch = searchText.includes(query.trim().toLowerCase());
       return categoryMatch && searchMatch;
     });
     if (sort === 'price-asc') result.sort((a, b) => a.price - b.price);
@@ -188,6 +190,6 @@ function ProductCard({ product, index, onAdd }: { product: StoreProduct; index: 
       {product.image_url ? <img src={product.image_url} alt={product.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105"/> : <Utensils size={42} className="text-black/15"/>}
       {product.tag && <span className="absolute left-2 top-2 rounded-full bg-white/90 px-2 py-1 text-[8px] font-black uppercase tracking-wider text-black">{product.tag}</span>}
     </div>
-    <div className="px-1 pb-1 pt-3"><p className="truncate text-[9px] font-bold uppercase tracking-wider text-neutral-400">{product.category}</p><h3 className="mt-1 line-clamp-2 min-h-9 text-[11px] font-extrabold leading-[1.3] text-black sm:text-xs">{product.name}</h3><div className="mt-2.5 flex items-center justify-between gap-1"><span className="text-xs font-black text-black sm:text-sm">{product.price > 0 ? money(product.price) : 'Consultar'}</span><button onClick={() => onAdd(product)} disabled={product.price <= 0} aria-label={'Añadir ' + product.name} className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#ffd21c] text-black transition hover:bg-black hover:text-[#ffd21c] disabled:cursor-not-allowed disabled:opacity-40"><Plus size={17}/></button></div></div>
+    <div className="px-1 pb-1 pt-3"><p className="truncate text-[9px] font-bold uppercase tracking-wider text-neutral-400">{product.category}</p><h3 className="mt-1 line-clamp-2 min-h-9 text-[11px] font-extrabold leading-[1.3] text-black sm:text-xs">{product.name}</h3>{product.description && <p className="mt-1 line-clamp-2 text-[9px] leading-4 text-neutral-500">{product.description}</p>}<div className="mt-2.5 flex items-center justify-between gap-1"><span className="text-xs font-black text-black sm:text-sm">{product.price > 0 ? money(product.price) : 'Consultar'}</span><button onClick={() => onAdd(product)} disabled={product.price <= 0} aria-label={'Añadir ' + product.name} className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#ffd21c] text-black transition hover:bg-black hover:text-[#ffd21c] disabled:cursor-not-allowed disabled:opacity-40"><Plus size={17}/></button></div></div>
   </article>;
 }
