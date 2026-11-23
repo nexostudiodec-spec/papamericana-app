@@ -27,7 +27,8 @@ export default function OrdersBoard({initialOrders}:{initialOrders:Order[]}) {
    const previous=orders.find(o=>o.id===id); if(!previous||previous.status===status)return;
    setMoving(id); setOrders(current=>current.map(o=>o.id===id?{...o,status}:o));
    const fd=new FormData();fd.set('id',id);fd.set('status',status);
-   const result=await updateOrderStatus(fd);
+   const runUpdate = updateOrderStatus as unknown as (data: FormData) => Promise<{ ok: boolean; error?: string }>;
+   const result = await runUpdate(fd);
    if(!result?.ok){setOrders(current=>current.map(o=>o.id===id?{...o,status:previous.status}:o));setNotice('No se pudo actualizar el pedido. Intenta otra vez.');}
    else setNotice('Pedido #'+previous.order_number+' movido a '+(stages.find(s=>s.id===status)?.label??status)+'.');
    setMoving(null);window.setTimeout(()=>setNotice(''),3500);
