@@ -7,3 +7,5 @@
 html { scroll-behavior: smooth; }
 body { margin: 0; background: #fffdf8; color: #171717; font-family: Arial, Helvetica, sans-serif; }
 button, a { -webkit-tap-highlight-color: transparent; }
+button, a, input, select, textarea { transition-duration: 150ms; transition-timing-function: ease-out; }
+::selection { background: #ffd21c; color: #171717; }
