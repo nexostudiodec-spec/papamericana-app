@@ -2,20 +2,19 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { House, History, ScanQrCode, UserRound } from 'lucide-react';
+import { House, ScanQrCode, UserRound } from 'lucide-react';
 
 const items = [
   { href: '/', label: 'Inicio', icon: House },
-  { href: '/mi-cuenta#pedidos', label: 'Historial', icon: History },
   { href: '/mi-cuenta?scan=1', label: 'Escanear', icon: ScanQrCode, primary: true },
-  { href: '/mi-cuenta#perfil', label: 'Perfil', icon: UserRound },
+  { href: '/mi-cuenta', label: 'Mi cuenta', icon: UserRound },
 ];
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
   return (
     <nav aria-label="Navegación móvil" className="fixed inset-x-0 bottom-0 z-[60] px-3 pb-[max(env(safe-area-inset-bottom),10px)] pt-2 lg:hidden">
-      <div className="relative mx-auto grid max-w-md grid-cols-4 items-end rounded-[25px] border border-black/[.06] bg-white/95 px-2 pb-2 pt-3 shadow-[0_-8px_30px_rgba(0,0,0,.10)] backdrop-blur-xl">
+      <div className="relative mx-auto grid max-w-md grid-cols-3 items-end rounded-[25px] border border-black/[.06] bg-white/95 px-2 pb-2 pt-3 shadow-[0_-8px_30px_rgba(0,0,0,.10)] backdrop-blur-xl">
         {items.map(({ href, label, icon: Icon, primary }) => {
           const active = pathname === '/' ? href === '/' : href.startsWith('/mi-cuenta') && pathname === '/mi-cuenta';
           return (
