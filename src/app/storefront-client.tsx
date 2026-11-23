@@ -17,7 +17,7 @@ export type StoreProduct = {
   description?: string | null;
 };
 
-type Props = { categories: string[]; products: StoreProduct[]; hasLiveProducts: boolean };
+type Props = { categories: string[]; products: StoreProduct[]; hasLiveProducts: boolean; logoUrl: string | null; isLoggedIn: boolean };
 type CartLine = { product: StoreProduct; quantity: number };
 
 const money = (value: number) => '$' + Number(value || 0).toFixed(2);
@@ -31,7 +31,7 @@ const iconForCategory = (name: string) => {
   return Utensils;
 };
 
-export default function StorefrontClient({ categories, products, hasLiveProducts }: Props) {
+export default function StorefrontClient({ categories, products, hasLiveProducts, logoUrl, isLoggedIn }: Props) {
   const [activeCategory, setActiveCategory] = useState('Todos');
   const [query, setQuery] = useState('');
   const [cartOpen, setCartOpen] = useState(false);
@@ -79,13 +79,13 @@ export default function StorefrontClient({ categories, products, hasLiveProducts
       <header className="sticky top-0 z-40 border-b border-black/[.06] bg-white/95 backdrop-blur-xl">
         <div className="mx-auto flex max-w-[1380px] items-center gap-4 px-4 py-3 sm:px-7 lg:px-10">
           <a href="#" className="flex w-[190px] shrink-0 items-center sm:w-[220px]">
-            <img src="/papamericana-logo.svg" alt="Papamericana · Le damos estilo a tus papas fritas" className="h-auto w-full"/>
+            <img src={logoUrl || "/papamericana-logo.svg"} alt="Papamericana · Le damos estilo a tus papas fritas" className="h-auto w-full object-contain"/>
           </a>
           <nav className="ml-5 hidden items-center gap-6 text-[12px] font-extrabold text-neutral-600 lg:flex">
             <a href="#catalogo" className="transition hover:text-black">Inicio</a>
             <a href="#categorias" className="transition hover:text-black">Menú</a>
             <a href="#combos" className="transition hover:text-black">Combos</a>
-            <a href="/mi-cuenta" className="transition hover:text-black">Mi cuenta</a>
+            {isLoggedIn && <a href="/mi-cuenta" className="transition hover:text-black">Mi cuenta</a>}
             <a href="/login" className="rounded-full border border-neutral-200 px-3 py-2 text-[10px] font-black uppercase tracking-wide text-neutral-700 transition hover:border-black hover:bg-black hover:text-white">Administración</a>
           </nav>
           <div className="ml-auto hidden max-w-[430px] flex-1 items-center rounded-full border border-neutral-200 bg-[#faf9f4] px-4 py-2.5 md:flex">
@@ -98,7 +98,7 @@ export default function StorefrontClient({ categories, products, hasLiveProducts
           </button>
           <button onClick={() => setMobileOpen((v) => !v)} className="grid h-10 w-10 place-items-center rounded-full border border-neutral-200 lg:hidden" aria-label="Abrir menú">{mobileOpen ? <X size={18}/> : <Menu size={18}/>}</button>
         </div>
-        {mobileOpen && <div className="border-t border-neutral-100 bg-white px-5 py-4 lg:hidden"><div className="mb-3 flex items-center gap-2 rounded-xl bg-neutral-100 px-3 py-2.5"><Search size={16}/><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar en el menú..." className="w-full bg-transparent text-sm outline-none"/></div><div className="grid grid-cols-2 gap-2 text-center text-xs font-bold sm:grid-cols-4"><a onClick={() => setMobileOpen(false)} href="#catalogo" className="rounded-lg bg-neutral-100 p-3">Inicio</a><a onClick={() => setMobileOpen(false)} href="#categorias" className="rounded-lg bg-neutral-100 p-3">Menú</a><a onClick={() => setMobileOpen(false)} href="#combos" className="rounded-lg bg-neutral-100 p-3">Combos</a><a onClick={() => setMobileOpen(false)} href="/mi-cuenta" className="rounded-lg bg-neutral-100 p-3">Mi cuenta</a><a onClick={() => setMobileOpen(false)} href="/login" className="rounded-lg bg-[#ffe600] p-3 font-black text-black">Administración</a></div></div>}
+        {mobileOpen && <div className="border-t border-neutral-100 bg-white px-5 py-4 lg:hidden"><div className="mb-3 flex items-center gap-2 rounded-xl bg-neutral-100 px-3 py-2.5"><Search size={16}/><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar en el menú..." className="w-full bg-transparent text-sm outline-none"/></div><div className="grid grid-cols-2 gap-2 text-center text-xs font-bold sm:grid-cols-4"><a onClick={() => setMobileOpen(false)} href="#catalogo" className="rounded-lg bg-neutral-100 p-3">Inicio</a><a onClick={() => setMobileOpen(false)} href="#categorias" className="rounded-lg bg-neutral-100 p-3">Menú</a><a onClick={() => setMobileOpen(false)} href="#combos" className="rounded-lg bg-neutral-100 p-3">Combos</a>{isLoggedIn && <a onClick={() => setMobileOpen(false)} href="/mi-cuenta" className="rounded-lg bg-neutral-100 p-3">Mi cuenta</a>}<a onClick={() => setMobileOpen(false)} href="/login" className="rounded-lg bg-[#ffe600] p-3 font-black text-black">Administración</a></div></div>}
       </header>
 
       <div className="mx-auto max-w-[1380px] px-4 pb-16 pt-5 sm:px-7 lg:px-10 lg:pt-7">
