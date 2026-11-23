@@ -16,6 +16,7 @@ export async function registerInStoreStamp(formData: FormData) {
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', userId).maybeSingle();
   if (!profile || !['owner','admin','staff'].includes(profile.role)) redirect('/login?error=unauthorized');
 
+  const note = String(formData.get('note') ?? '').trim().slice(0, 160);
   const { error } = await supabase.rpc('register_in_store_loyalty_stamp', {
     p_token: token,
     p_note: note || 'Compra presencial',
