@@ -14,7 +14,7 @@ const items=[
  {href:'/admin/orders',label:'Pedidos',icon:ClipboardList},
  {href:'/admin/delivery',label:'Entregas',icon:Truck},
  {href:'/admin/customers',label:'Clientes',icon:Users},
- {href:'/admin/loyalty/scan',label:'Fidelización',icon:Gift},
+ {href:'/admin/loyalty',label:'Fidelización',icon:Gift},
  {href:'/admin/settings',label:'Configuración',icon:Settings},
 ];
 export default function AdminShell({children,logoUrl,storeName}:{children:ReactNode;logoUrl:string|null;storeName:string}){
