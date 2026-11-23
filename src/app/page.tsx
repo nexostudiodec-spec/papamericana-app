@@ -32,16 +32,21 @@ export default async function Home() {
   let hasLiveProducts = false;
   let logoUrl: string | null = null;
   let isLoggedIn = false;
+  let deliveryZones: { id: string; name: string; delivery_fee: number; min_order_amount: number }[] = [];
+  let storeOptions = { acceptsDelivery: true, acceptsPickup: true };
 
   if (supabase) {
-    const [{ data: categoryRows }, { data: productRows }, { data: settings }, { data: claims }] = await Promise.all([
+    const [{ data: categoryRows }, { data: productRows }, { data: settings }, { data: claims }, { data: zones }] = await Promise.all([
       supabase.from('categories').select('id,name').eq('is_active', true).order('sort_order'),
       supabase.from('products').select('id,name,description,price,image_url,category_id,is_featured').eq('is_active', true).order('created_at', { ascending: false }).limit(60),
       supabase.from('store_settings').select('logo_url').limit(1).maybeSingle(),
       supabase.auth.getClaims(),
+      supabase.from('delivery_zones').select('id,name,delivery_fee,min_order_amount').eq('is_active', true).order('name'),
     ]);
 
     logoUrl = settings?.logo_url ?? null;
+    deliveryZones = (zones ?? []).map((z) => ({ ...z, delivery_fee: Number(z.delivery_fee), min_order_amount: Number(z.min_order_amount) }));
+    storeOptions = { acceptsDelivery: settings?.accepts_delivery ?? true, acceptsPickup: settings?.accepts_pickup ?? true };
     isLoggedIn = Boolean(claims?.claims?.sub);
     if (productRows?.length && categoryRows?.length) categories = ['Todos', ...categoryRows.map((category) => category.name)];
     if (productRows?.length) {
@@ -60,5 +65,5 @@ export default async function Home() {
   }
 
   if (!hasLiveProducts) products = fallbackProducts;
-  return <StorefrontClient categories={categories} products={products} hasLiveProducts={hasLiveProducts} logoUrl={logoUrl} isLoggedIn={isLoggedIn} />;
+  return <StorefrontClient categories={categories} products={products} hasLiveProducts={hasLiveProducts} logoUrl={logoUrl} isLoggedIn={isLoggedIn} deliveryZones={deliveryZones} storeOptions={storeOptions} />;
 }
