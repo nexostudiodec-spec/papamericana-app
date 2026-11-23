@@ -16,12 +16,14 @@ type OrderAlert = {
 export default function OrdersNotifications() {
   const [alerts, setAlerts] = useState<OrderAlert[]>([]);
   const [permission, setPermission] = useState<NotificationPermission>('default');
+  const [supportsNotifications, setSupportsNotifications] = useState(false);
   const [connected, setConnected] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
   const unreadCount = alerts.length;
 
   useEffect(() => {
     if (typeof window !== 'undefined' && 'Notification' in window) {
+      setSupportsNotifications(true);
       setPermission(Notification.permission);
     }
     let supabase: ReturnType<typeof createSupabaseBrowserClient>;
@@ -110,7 +112,7 @@ export default function OrdersNotifications() {
       {panelOpen && <div className="absolute right-0 top-12 z-[70] w-[min(90vw,360px)] overflow-hidden rounded-2xl border border-neutral-200 bg-white text-neutral-900 shadow-2xl">
         <div className="flex items-center justify-between border-b p-4"><div><p className="text-sm font-black">Notificaciones</p><p className="text-[11px] text-neutral-500">{connected ? 'Conectado en tiempo real' : 'Conectando…'}</p></div><button onClick={()=>setPanelOpen(false)} className="rounded-lg p-1 text-neutral-500 hover:bg-neutral-100"><X size={16}/></button></div>
         {alerts.length ? <div className="max-h-80 divide-y overflow-y-auto">{alerts.map(order=><div key={order.id} className="p-4"><p className="text-[10px] font-bold uppercase tracking-wide text-amber-700">Nuevo pedido</p><p className="mt-1 text-sm font-black">Pedido #{order.order_number}</p><p className="text-xs text-neutral-600">{order.customer_name} · ${Number(order.total).toFixed(2)}</p><div className="mt-3 flex items-center justify-between"><Link href="/admin/orders" onClick={()=>setPanelOpen(false)} className="inline-flex items-center gap-1 text-xs font-bold text-black underline">Ver pedido <ExternalLink size={12}/></Link><button onClick={()=>setAlerts(current=>current.filter(item=>item.id!==order.id))} className="text-[11px] text-neutral-400 hover:text-black">Descartar</button></div></div>)}</div> : <div className="p-6 text-center"><Bell size={22} className="mx-auto text-neutral-300"/><p className="mt-2 text-sm font-bold">No hay pedidos nuevos</p><p className="mt-1 text-xs text-neutral-500">Te avisaremos cuando entre uno.</p></div>}
-        {'Notification' in window && permission !== 'granted' && <div className="border-t bg-neutral-50 p-3"><button onClick={requestDesktopPermission} className="flex w-full items-center justify-center gap-2 rounded-xl bg-black px-3 py-2.5 text-xs font-bold text-white"><Volume2 size={14}/> Activar alertas de escritorio</button></div>}
+        {supportsNotifications && permission !== 'granted' && <div className="border-t bg-neutral-50 p-3"><button onClick={requestDesktopPermission} className="flex w-full items-center justify-center gap-2 rounded-xl bg-black px-3 py-2.5 text-xs font-bold text-white"><Volume2 size={14}/> Activar alertas de escritorio</button></div>}
       </div>}
     </div>
     {newestAlert && !panelOpen && <div className="fixed right-5 top-[82px] z-[80] w-[min(92vw,390px)] animate-in slide-in-from-top-2 rounded-2xl border border-[#f0d35a] bg-white p-4 text-neutral-900 shadow-2xl duration-200">
