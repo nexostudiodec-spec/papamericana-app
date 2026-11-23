@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowLeft, ClipboardList, Package, Users, TrendingUp, ShoppingCart, Clock3, Utensils, Tags, ImagePlus, Settings, Truck, LogOut } from 'lucide-react';
+import { ArrowLeft, ClipboardList, Package, Users, TrendingUp, ShoppingCart, Clock3, Utensils, Tags, ImagePlus, Settings, Truck, LogOut, Images } from 'lucide-react';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { signOut } from '@/app/login/actions';
 
@@ -9,6 +9,7 @@ const modules = [
   { href:'/admin/orders', label:'Pedidos', desc:'Revisar pedidos, cambiar estados y gestionar preparación.', icon:ClipboardList },
   { href:'/admin/delivery', label:'Entregas', desc:'Configurar retiro en local, zonas y tarifas de delivery.', icon:Truck },
   { href:'/admin/customers', label:'Clientes', desc:'Consultar clientes y su historial de compras.', icon:Users },
+  { href:'/admin/banners', label:'Banners y diapositivas', desc:'Editar el carrusel principal y administrar hasta 20 diapositivas.', icon:Images },
   { href:'/admin/settings', label:'Configuración', desc:'Datos del restaurante, horarios y preferencias.', icon:Settings },
 ];
 const stats = [{label:'Pedidos de hoy',value:'—',icon:ShoppingCart},{label:'Ventas del día',value:'—',icon:TrendingUp},{label:'Productos activos',value:'—',icon:Package},{label:'Clientes',value:'—',icon:Users}];
