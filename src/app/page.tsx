@@ -28,13 +28,19 @@ export default async function Home() {
   let categories = ['Todos', 'Papas rústicas', 'Burguers', 'Hotdogs', 'Bebidas', 'Extras'];
   let products = fallbackProducts;
   let hasLiveProducts = false;
+  let logoUrl: string | null = null;
+  let isLoggedIn = false;
 
   if (supabase) {
-    const [{ data: categoryRows }, { data: productRows }] = await Promise.all([
+    const [{ data: categoryRows }, { data: productRows }, { data: settings }, { data: claims }] = await Promise.all([
       supabase.from('categories').select('id,name').eq('is_active', true).order('sort_order'),
       supabase.from('products').select('id,name,description,price,image_url,category_id,is_featured').eq('is_active', true).order('created_at', { ascending: false }).limit(60),
+      supabase.from('store_settings').select('logo_url').limit(1).maybeSingle(),
+      supabase.auth.getClaims(),
     ]);
 
+    logoUrl = settings?.logo_url ?? null;
+    isLoggedIn = Boolean(claims?.data?.claims?.sub);
     if (productRows?.length && categoryRows?.length) categories = ['Todos', ...categoryRows.map((category) => category.name)];
     if (productRows?.length) {
       const categoryNames = new Map((categoryRows ?? []).map((category) => [category.id, category.name]));
@@ -52,5 +58,5 @@ export default async function Home() {
   }
 
   if (!hasLiveProducts) products = fallbackProducts;
-  return <StorefrontClient categories={categories} products={products} hasLiveProducts={hasLiveProducts} />;
+  return <StorefrontClient categories={categories} products={products} hasLiveProducts={hasLiveProducts} logoUrl={logoUrl} isLoggedIn={isLoggedIn} />;
 }
