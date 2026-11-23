@@ -105,3 +105,7 @@ end;
 $$;
 revoke all on function public.register_in_store_loyalty_stamp(uuid,text) from public, anon;
 grant execute on function public.register_in_store_loyalty_stamp(uuid,text) to authenticated;
+
+revoke all on function public.award_order_loyalty_stamp() from public, anon, authenticated;
+create index if not exists loyalty_stamp_events_customer_created_idx on public.loyalty_stamp_events(customer_id, created_at desc);
+create index if not exists loyalty_stamp_events_created_by_idx on public.loyalty_stamp_events(created_by);
