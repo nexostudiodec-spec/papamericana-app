@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import StorefrontClient, { type StoreProduct } from './storefront-client';
+import type { StoreBanner } from './banner-carousel';
 
 const fallbackProducts: StoreProduct[] = [
 { id: 'menu-papas-chola', name: 'La Chola', category: 'Papas rústicas', price: 1.50, tag: 'CLÁSICA', image_url: null },
@@ -34,19 +35,22 @@ export default async function Home() {
   let isLoggedIn = false;
   let deliveryZones: { id: string; name: string; delivery_fee: number; min_order_amount: number }[] = [];
   let storeOptions = { acceptsDelivery: true, acceptsPickup: true };
+  let banners: StoreBanner[] = [];
 
   if (supabase) {
-    const [{ data: categoryRows }, { data: productRows }, { data: settings }, { data: claims }, { data: zones }] = await Promise.all([
+    const [{ data: categoryRows }, { data: productRows }, { data: settings }, { data: claims }, { data: zones }, { data: bannerRows }] = await Promise.all([
       supabase.from('categories').select('id,name').eq('is_active', true).order('sort_order'),
       supabase.from('products').select('id,name,description,price,image_url,category_id,is_featured').eq('is_active', true).order('created_at', { ascending: false }).limit(60),
       supabase.from('store_settings').select('logo_url,accepts_delivery,accepts_pickup').limit(1).maybeSingle(),
       supabase.auth.getClaims(),
       supabase.from('delivery_zones').select('id,name,delivery_fee,min_order_amount').eq('is_active', true).order('name'),
+      supabase.from('store_banners').select('id,title,subtitle,button_text,button_url,image_url,sort_order').eq('is_active', true).order('sort_order').limit(20),
     ]);
 
     logoUrl = settings?.logo_url ?? null;
     deliveryZones = (zones ?? []).map((z) => ({ ...z, delivery_fee: Number(z.delivery_fee), min_order_amount: Number(z.min_order_amount) }));
     storeOptions = { acceptsDelivery: settings?.accepts_delivery ?? true, acceptsPickup: settings?.accepts_pickup ?? true };
+    banners = (bannerRows ?? []) as StoreBanner[];
     isLoggedIn = Boolean(claims?.claims?.sub);
     if (productRows?.length && categoryRows?.length) categories = ['Todos', ...categoryRows.map((category) => category.name)];
     if (productRows?.length) {
@@ -65,5 +69,5 @@ export default async function Home() {
   }
 
   if (!hasLiveProducts) products = fallbackProducts;
-  return <StorefrontClient categories={categories} products={products} hasLiveProducts={hasLiveProducts} logoUrl={logoUrl} isLoggedIn={isLoggedIn} deliveryZones={deliveryZones} storeOptions={storeOptions} />;
+  return <StorefrontClient categories={categories} products={products} hasLiveProducts={hasLiveProducts} logoUrl={logoUrl} isLoggedIn={isLoggedIn} deliveryZones={deliveryZones} storeOptions={storeOptions} banners={banners} />;
 }
