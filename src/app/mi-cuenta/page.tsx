@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { ArrowLeft, Clock3, CheckCircle2, Package, QrCode, Stamp, Utensils } from 'lucide-react';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { sendCustomerAccess } from './actions';
+import MobileBottomNav from '../mobile-bottom-nav';
 
 const statusLabels: Record<string, string> = {
   pending: 'Pendiente', confirmed: 'Confirmado', preparing: 'En preparación',
@@ -22,7 +23,7 @@ export default async function CustomerAccountPage({ searchParams }: { searchPara
   const userId = claims?.claims?.sub as string | undefined;
 
   if (!userId) {
-    return <main className="min-h-screen bg-[#fffdf8] px-4 py-10 text-[#171717]">
+    return <main className="min-h-screen bg-[#fffdf8] px-4 py-10 pb-28 text-[#171717]">
       <div className="mx-auto max-w-md">
         <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold text-neutral-500"><ArrowLeft size={15}/> Volver al menú</Link>
         <section className="mt-8 rounded-[26px] border border-black/[.06] bg-white p-7 shadow-sm sm:p-9">
@@ -69,12 +70,12 @@ export default async function CustomerAccountPage({ searchParams }: { searchPara
   const qrTarget = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://papamericana-app.vercel.app'}/admin/loyalty/scan?token=${customer.loyalty_qr_token}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=12&data=${encodeURIComponent(qrTarget)}`;
 
-  return <main className="min-h-screen bg-[#fffdf8] px-4 py-8 text-[#171717] sm:px-7">
+  return <main className="min-h-screen bg-[#fffdf8] px-4 py-8 pb-28 text-[#171717] sm:px-7">
     <div className="mx-auto max-w-5xl">
       <div className="flex flex-wrap items-center justify-between gap-3"><Link href="/" className="inline-flex items-center gap-2 text-xs font-bold text-neutral-500"><ArrowLeft size={15}/> Volver al menú</Link><form action={async () => { 'use server'; const s = await createSupabaseServerClient(); await s?.auth.signOut(); redirect('/mi-cuenta'); }}><button className="text-xs font-bold text-neutral-500 hover:text-black">Cerrar sesión</button></form></div>
       <header className="mt-8"><p className="text-[10px] font-black uppercase tracking-[.2em] text-neutral-400">PAPAMERICANA · MI CUENTA</p><h1 className="mt-2 text-3xl font-black tracking-[-.05em] sm:text-4xl">¡Hola, {customer.full_name.split(' ')[0]}!</h1><p className="mt-2 text-sm text-neutral-500">Aquí puedes revisar tus pedidos y tus beneficios.</p></header>
 
-      <section className="mt-7 grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
+      <section id="perfil" className="mt-7 grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
         <article className="overflow-hidden rounded-[24px] bg-[#171717] p-6 text-white sm:p-8">
           <div className="flex items-center gap-2 text-[#ffe600]"><Stamp size={18}/><span className="text-[10px] font-black uppercase tracking-[.2em]">Mi tarjeta de sellos</span></div>
           <div className="mt-5 flex items-end gap-2"><span className="text-6xl font-black tracking-[-.07em]">{stamps % required}</span><span className="pb-2 text-sm font-bold text-white/50">/ {required} sellos</span></div>
@@ -90,7 +91,7 @@ export default async function CustomerAccountPage({ searchParams }: { searchPara
         </article>
       </section>
 
-      <section className="mt-9"><div className="flex items-end justify-between"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-neutral-400">Tu actividad</p><h2 className="mt-1 text-2xl font-black tracking-[-.04em]">Mis pedidos</h2></div><span className="rounded-full bg-[#fff3b0] px-3 py-1.5 text-[10px] font-black">{orders?.length ?? 0} pedidos</span></div>
+      <section id="pedidos" className="mt-9 scroll-mt-24"><div className="flex items-end justify-between"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-neutral-400">Tu actividad</p><h2 className="mt-1 text-2xl font-black tracking-[-.04em]">Mis pedidos</h2></div><span className="rounded-full bg-[#fff3b0] px-3 py-1.5 text-[10px] font-black">{orders?.length ?? 0} pedidos</span></div>
         <div className="mt-4 space-y-3">{(orders ?? []).map(order => <article key={order.id} className="rounded-2xl border border-black/[.06] bg-white p-5">
           <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-[10px] font-bold text-neutral-400">PEDIDO #{order.order_number} · {new Date(order.created_at).toLocaleDateString('es-EC',{day:'2-digit',month:'short',year:'numeric'})}</p><p className="mt-1 text-lg font-black">${Number(order.total).toFixed(2)}</p></div><span className={'rounded-full px-3 py-1.5 text-[10px] font-black ' + (statusStyles[order.status] || 'bg-neutral-100 text-neutral-600')}>{statusLabels[order.status] || order.status}</span></div>
           <div className="mt-3 border-t border-neutral-100 pt-3">{(order.order_items ?? []).map((item: {product_name:string;quantity:number;line_total:number},i:number)=><div key={i} className="flex justify-between gap-3 py-1 text-xs text-neutral-500"><span>{item.quantity} × {item.product_name}</span><span>${Number(item.line_total).toFixed(2)}</span></div>)}</div>
@@ -98,5 +99,6 @@ export default async function CustomerAccountPage({ searchParams }: { searchPara
       </section>
       <p className="mt-8 text-center text-[10px] text-neutral-400">¿Necesitas ayuda? Contacta con PAPAMERICANA.</p>
     </div>
+    <MobileBottomNav />
   </main>;
 }
