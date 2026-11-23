@@ -35,7 +35,7 @@ export async function saveProduct(form: FormData) {
   }
   const payload = {
     name,
-    slug: slugify(name) + (id ? '' : '-' + crypto.randomUUID().slice(0, 6)),
+    ...(id ? {} : { slug: slugify(name) + '-' + crypto.randomUUID().slice(0, 6) }),
     category_id: field(form, 'category_id') || null,
     description: field(form, 'description') || null,
     price,
