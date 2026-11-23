@@ -52,44 +52,58 @@ export default function OrdersNotifications() {
       }
     };
 
+    let cursor = initialCutoff;
+    const fetchMissedOrders = async () => {
+      const { data } = await supabase.from('orders')
+        .select('id,order_number,customer_name,total,created_at')
+        .gt('created_at', cursor)
+        .order('created_at', { ascending: true })
+        .limit(30);
+      if (!mounted || !data) return;
+      for (const row of data) {
+        addAlert({
+          id: row.id,
+          order_number: row.order_number,
+          customer_name: row.customer_name,
+          total: Number(row.total),
+          created_at: row.created_at,
+        });
+        if (row.created_at > cursor) cursor = row.created_at;
+      }
+      if (data.length) window.localStorage.setItem(seenKey, cursor);
+    };
+
     const channel = supabase
       .channel('admin-new-orders-global')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, payload => {
         const row = payload.new as Record<string, unknown>;
+        const createdAt = String(row.created_at || new Date().toISOString());
         addAlert({
           id: String(row.id),
           order_number: Number(row.order_number),
           customer_name: String(row.customer_name || 'Cliente'),
           total: Number(row.total || 0),
-          created_at: String(row.created_at || new Date().toISOString()),
+          created_at: createdAt,
         });
+        if (createdAt > cursor) {
+          cursor = createdAt;
+          window.localStorage.setItem(seenKey, cursor);
+        }
       })
       .subscribe(status => {
-        if (mounted) setConnected(status === 'SUBSCRIBED');
+        if (mounted) {
+          setConnected(status === 'SUBSCRIBED');
+          if (status === 'SUBSCRIBED') void fetchMissedOrders();
+        }
       });
 
-    if (lastSeen) {
-      supabase.from('orders')
-        .select('id,order_number,customer_name,total,created_at')
-        .gt('created_at', initialCutoff)
-        .order('created_at', { ascending: false })
-        .limit(8)
-        .then(({ data }) => {
-          if (!mounted || !data) return;
-          data.forEach(row => addAlert({
-            id: row.id,
-            order_number: row.order_number,
-            customer_name: row.customer_name,
-            total: Number(row.total),
-            created_at: row.created_at,
-          }));
-        });
-    } else {
-      window.localStorage.setItem(seenKey, initialCutoff);
-    }
+    if (!lastSeen) window.localStorage.setItem(seenKey, initialCutoff);
+    // Respaldo: si el WebSocket se interrumpe, consulta pedidos nuevos sin recargar.
+    const poll = window.setInterval(() => { void fetchMissedOrders(); }, 10000);
 
     return () => {
       mounted = false;
+      window.clearInterval(poll);
       supabase.removeChannel(channel);
     };
   }, []);
