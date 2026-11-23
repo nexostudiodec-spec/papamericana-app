@@ -1,31 +1,35 @@
 import Link from 'next/link';
-import { ArrowLeft, Tags } from 'lucide-react';
+import { ArrowLeft, Tags, Utensils, Flame, CupSoda, ShoppingBag, Sandwich, Pizza, Coffee, Drumstick, Trash2 } from 'lucide-react';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { saveCategory, toggleCategory } from './actions';
+import { saveCategory, toggleCategory, deleteCategory } from './actions';
 
-type Category = { id:string; name:string; slug:string; description:string|null; sort_order:number; is_active:boolean };
+type Category = { id:string; name:string; slug:string; description:string|null; sort_order:number; is_active:boolean; icon_name:string|null; icon_url:string|null };
+const iconMap:Record<string,any>={tag:Tags,utensils:Utensils,flame:Flame,drink:CupSoda,bag:ShoppingBag,sandwich:Sandwich,pizza:Pizza,coffee:Coffee,drumstick:Drumstick};
 
-export default async function CategoriesPage({ searchParams }: { searchParams:Promise<{edit?:string;saved?:string;error?:string}> }) {
-  const supabase = await createSupabaseServerClient();
-  if (!supabase) return null;
-  const params = await searchParams;
-  const { data } = await supabase.from('categories').select('id,name,slug,description,sort_order,is_active').order('sort_order');
-  const categories = (data ?? []) as Category[];
-  const editing = categories.find(c => c.id === params.edit);
-  return <main className="min-h-screen bg-[#f6f6f3] px-4 py-8 text-neutral-900 sm:px-8"><div className="mx-auto max-w-5xl">
-    <Link href="/admin" className="inline-flex items-center gap-2 text-xs font-bold text-neutral-500"><ArrowLeft size={15}/> Panel</Link>
-    <h1 className="mt-6 text-3xl font-black">Categorías</h1><p className="mt-1 text-sm text-neutral-500">Organiza las secciones del menú que aparecen en la tienda.</p>
-    {params.saved && <p className="mt-4 rounded-xl bg-green-50 p-3 text-xs font-bold text-green-700">Categoría guardada.</p>}
-    {params.error && <p className="mt-4 rounded-xl bg-red-50 p-3 text-xs font-bold text-red-700">No se pudo guardar. Comprueba que el nombre no esté repetido.</p>}
-    <div className="mt-6 grid gap-3 sm:grid-cols-2">{categories.map(c=><article key={c.id} className="flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white p-4"><span className="grid h-11 w-11 place-items-center rounded-xl bg-[#fff4bf]"><Tags size={20}/></span><div className="min-w-0 flex-1"><h2 className="font-black">{c.name}</h2><p className="text-xs text-neutral-400">{c.description || c.slug} · Orden {c.sort_order}</p></div><span className={'rounded-full px-2 py-1 text-[9px] font-black '+(c.is_active?'bg-green-50 text-green-700':'bg-neutral-100 text-neutral-500')}>{c.is_active?'ACTIVA':'OCULTA'}</span><Link href={'/admin/categories?edit='+c.id} className="text-xs font-bold underline">Editar</Link><form action={toggleCategory}><input type="hidden" name="id" value={c.id}/><input type="hidden" name="active" value={String(!c.is_active)}/><button className="text-[10px] font-bold">{c.is_active?'Ocultar':'Activar'}</button></form></article>)}</div>
-    <section className="mt-8 rounded-2xl border border-neutral-200 bg-white p-5 sm:p-7"><h2 className="text-lg font-black">{editing?'Editar categoría':'Nueva categoría'}</h2>
-      <form action={saveCategory} className="mt-4 grid gap-4 sm:grid-cols-2"><input type="hidden" name="id" value={editing?.id??''}/>
-        <label className="text-xs font-bold">Nombre<input name="name" required defaultValue={editing?.name??''} className="field-input"/></label>
-        <label className="text-xs font-bold">Orden<input name="sort_order" type="number" defaultValue={editing?.sort_order??categories.length+1} className="field-input"/></label>
-        <label className="text-xs font-bold sm:col-span-2">Descripción<input name="description" defaultValue={editing?.description??''} className="field-input"/></label>
-        <label className="flex items-center gap-2 text-xs font-bold"><input name="is_active" type="checkbox" defaultChecked={editing?.is_active??true}/> Categoría activa</label>
-        <div className="flex gap-2"><button className="rounded-xl bg-[#ffd21c] px-5 py-3 text-xs font-black">Guardar</button>{editing&&<Link href="/admin/categories" className="rounded-xl border px-5 py-3 text-xs font-bold">Cancelar</Link>}</div>
-      </form>
-    </section>
-  </div><style>{`.field-input{display:block;width:100%;margin-top:7px;border:1px solid #e5e5e5;border-radius:10px;padding:11px 12px;font-size:13px;outline:none}`}</style></main>;
+export default async function CategoriesPage({ searchParams }: { searchParams:Promise<{edit?:string;new?:string;saved?:string;deleted?:string;error?:string}> }) {
+ const supabase=await createSupabaseServerClient(); if(!supabase)return null;
+ const params=await searchParams;
+ const {data}=await supabase.from('categories').select('id,name,slug,description,sort_order,is_active,icon_name,icon_url').order('sort_order');
+ const categories=(data??[]) as Category[];
+ const editing=categories.find(c=>c.id===params.edit);
+ const modalOpen=params.new==='1'||!!editing;
+ return <main className="min-h-screen bg-[#f6f6f3] px-4 py-8 text-neutral-900 sm:px-8"><div className="mx-auto max-w-5xl">
+  <Link href="/admin" className="inline-flex items-center gap-2 text-xs font-bold text-neutral-500"><ArrowLeft size={15}/> Panel</Link>
+  <div className="mt-6 flex flex-wrap items-end justify-between gap-4"><div><h1 className="text-3xl font-black">Categorías</h1><p className="mt-1 text-sm text-neutral-500">Organiza las secciones del menú que aparecen en la tienda.</p></div><Link href="/admin/categories?new=1" className="rounded-xl bg-[#ffd21c] px-5 py-3 text-xs font-black text-black transition-colors hover:bg-black hover:text-[#ffd21c]">+ Nueva categoría</Link></div>
+  {params.saved&&<p className="mt-4 rounded-xl bg-green-50 p-3 text-xs font-bold text-green-700">Categoría guardada.</p>}
+  {params.deleted&&<p className="mt-4 rounded-xl bg-green-50 p-3 text-xs font-bold text-green-700">Categoría eliminada.</p>}
+  {params.error&&<p className="mt-4 rounded-xl bg-red-50 p-3 text-xs font-bold text-red-700">{params.error==='hasproducts'?'No puedes eliminar esta categoría porque tiene productos asignados. Reasigna esos productos primero.':params.error==='icon'?'El icono debe ser JPG, PNG o WebP y pesar máximo 2 MB.':params.error==='upload'?'No se pudo subir el icono. Revisa el almacenamiento.':'No se pudo completar la operación. Revisa los datos.'}</p>}
+  <div className="mt-6 grid gap-3 sm:grid-cols-2">{categories.map(c=>{const Icon=iconMap[c.icon_name||'tag']||Tags;return <article key={c.id} className="flex min-w-0 items-center gap-3 rounded-2xl border border-neutral-200 bg-white p-4"><span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-xl bg-[#fff4bf]">{c.icon_url?<img src={c.icon_url} alt="" className="h-full w-full object-contain p-1"/>:<Icon size={21}/>}</span><div className="min-w-0 flex-1"><h2 className="font-black">{c.name}</h2><p className="text-xs text-neutral-400">{c.description||c.slug} · Orden {c.sort_order}</p></div><span className={'rounded-full px-2 py-1 text-[9px] font-black '+(c.is_active?'bg-green-50 text-green-700':'bg-neutral-100 text-neutral-500')}>{c.is_active?'ACTIVA':'OCULTA'}</span><Link href={'/admin/categories?edit='+c.id} className="text-xs font-bold underline">Editar</Link><form action={toggleCategory}><input type="hidden" name="id" value={c.id}/><input type="hidden" name="active" value={String(!c.is_active)}/><button className="text-[10px] font-bold">{c.is_active?'Ocultar':'Activar'}</button></form><form action={deleteCategory}><input type="hidden" name="id" value={c.id}/><button aria-label={'Eliminar '+c.name} title="Eliminar categoría" className="rounded-lg p-2 text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-600"><Trash2 size={16}/></button></form></article>})}</div>
+  {modalOpen&&<div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/45 p-3 backdrop-blur-[2px] sm:p-6"><section className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-neutral-200 bg-white p-5 shadow-2xl sm:p-7"><div className="flex items-start justify-between gap-4"><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-neutral-400">MENÚ · CATEGORÍAS</p><h2 className="mt-1 text-xl font-black">{editing?'Editar categoría':'Nueva categoría'}</h2><p className="mt-1 text-xs text-neutral-500">Personaliza el nombre, el orden y el icono que verá el cliente.</p></div><Link href="/admin/categories" aria-label="Cerrar" className="rounded-xl border border-neutral-200 px-3 py-2 text-sm font-bold hover:bg-neutral-100">✕</Link></div>
+   <form action={saveCategory} encType="multipart/form-data" className="mt-6 grid gap-4 sm:grid-cols-2"><input type="hidden" name="id" value={editing?.id??''}/><input type="hidden" name="existing_icon_url" value={editing?.icon_url??''}/>
+    <label className="text-xs font-bold">Nombre<input name="name" required defaultValue={editing?.name??''} className="field-input"/></label>
+    <label className="text-xs font-bold">Orden<input name="sort_order" type="number" defaultValue={editing?.sort_order??categories.length+1} className="field-input"/></label>
+    <label className="text-xs font-bold sm:col-span-2">Descripción<input name="description" defaultValue={editing?.description??''} className="field-input"/></label>
+    <label className="text-xs font-bold">Icono de biblioteca<select name="icon_name" defaultValue={editing?.icon_name??'tag'} className="field-input"><option value="tag">Etiqueta</option><option value="utensils">Cubiertos</option><option value="flame">Fuego</option><option value="drink">Bebida</option><option value="bag">Bolsa</option><option value="sandwich">Sándwich</option><option value="pizza">Pizza</option><option value="coffee">Café</option><option value="drumstick">Pollo</option></select></label>
+    <label className="text-xs font-bold">O subir icono desde el ordenador<input name="icon_file" type="file" accept="image/jpeg,image/png,image/webp" className="field-input file:mr-2 file:rounded-lg file:border-0 file:bg-[#fff2b5] file:px-3 file:py-2 file:text-xs file:font-bold"/><span className="mt-1 block text-[10px] font-medium text-neutral-400">JPG, PNG o WebP · Máximo 2 MB</span></label>
+    {editing?.icon_url&&<div className="flex items-center gap-3 rounded-xl bg-neutral-50 p-3 sm:col-span-2"><img src={editing.icon_url} alt="" className="h-12 w-12 rounded-lg object-contain"/><span className="text-xs text-neutral-500">Icono actual. Si no subes otro, se conserva.</span></div>}
+    <label className="flex items-center gap-2 text-xs font-bold sm:col-span-2"><input name="is_active" type="checkbox" defaultChecked={editing?.is_active??true}/> Categoría activa</label>
+    <div className="flex gap-2 pt-2 sm:col-span-2"><button className="rounded-xl bg-[#ffd21c] px-5 py-3 text-xs font-black text-black transition-colors hover:bg-black hover:text-[#ffd21c]">Guardar categoría</button><Link href="/admin/categories" className="rounded-xl border border-neutral-200 px-5 py-3 text-xs font-bold">Cancelar</Link></div>
+   </form></section></div>}
+ </div><style>{".field-input{display:block;width:100%;margin-top:7px;border:1px solid #e5e5e5;border-radius:10px;padding:11px 12px;font-size:13px;outline:none;transition:border-color .15s ease,box-shadow .15s ease}.field-input:focus{border-color:#171717;box-shadow:0 0 0 2px rgba(255,210,28,.18)}"}</style></main>;
 }
