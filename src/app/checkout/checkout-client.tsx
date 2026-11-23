@@ -18,7 +18,7 @@ export default function CheckoutClient({ items, zones, acceptsDelivery, acceptsP
     e.preventDefault(); setError(''); setBusy(true);
     try {
       const result=await placeOrder(new FormData(e.currentTarget));
-      if(!result.ok){setError(result.error);return;}
+      if(!result.ok || !result.order){setError(result.error ?? 'No pudimos registrar tu pedido.');return;}
       setDone({number:result.order.order_number,total:Number(result.order.total)});
     } catch { setError('No pudimos registrar tu pedido. Inténtalo nuevamente.'); }
     finally { setBusy(false); }
