@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import BannerCarousel, { type StoreBanner } from './banner-carousel';
+import MobileBottomNav from './mobile-bottom-nav';
 import {
   Search, ShoppingBag, Menu, X, Plus, Minus, Trash2, ArrowRight,
   ChevronRight, Sparkles, Utensils, Sandwich, Flame, CupSoda,
@@ -75,7 +76,7 @@ export default function StorefrontClient({ categories, products, hasLiveProducts
   const visibleFeatured = featured.length ? featured : products.slice(0, 4);
 
   return (
-    <main className="min-h-screen bg-[#fffdf8] text-[#171717]">
+    <main className="min-h-screen bg-[#fffdf8] pb-24 text-[#171717] lg:pb-0">
       <div className="bg-[#171717] px-4 py-2 text-center text-[10px] font-extrabold uppercase tracking-[.16em] text-white sm:text-[11px]">LE DAMOS ESTILO A TUS PAPAS FRITAS</div>
 
       <header className="sticky top-0 z-40 border-b border-black/[.06] bg-white/95 backdrop-blur-xl">
@@ -158,6 +159,7 @@ export default function StorefrontClient({ categories, products, hasLiveProducts
 
       <footer className="border-t border-white/10 bg-[#171717] px-5 py-6 text-white"><div className="mx-auto flex max-w-[1380px] flex-wrap items-center justify-between gap-3 text-[10px] text-neutral-400"><span className="font-black tracking-wider text-white">PAPAMERICANA · Le damos estilo a tus papas fritas</span><a href="/login" className="font-bold text-[#ffe600] transition hover:text-white">Acceso administrador</a><span>© {new Date().getFullYear()} PAPAMERICANA</span><a href="https://adsgencydigital.com/" target="_blank" rel="noopener noreferrer" className="font-bold text-[#ffe600] transition hover:text-white">Creado por Adsgency Digital ↗</a></div></footer>
 
+      <MobileBottomNav />
       {cartOpen && <div className="fixed inset-0 z-50"><button aria-label="Cerrar pedido" onClick={() => setCartOpen(false)} className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"/><aside className="absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-white shadow-2xl"><div className="flex items-center justify-between border-b border-neutral-100 px-6 py-5"><div><div className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Tu antojo</div><h2 className="mt-1 text-xl font-black">Mi pedido ({count})</h2></div><button onClick={() => setCartOpen(false)} aria-label="Cerrar" className="grid h-10 w-10 place-items-center rounded-full bg-neutral-100"><X size={18}/></button></div>
         {cart.length === 0 ? <div className="grid flex-1 place-items-center px-8 text-center"><div><div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-[#fff9bf]"><ShoppingBag size={27}/></div><h3 className="mt-5 text-lg font-black">Aún no agregas nada</h3><p className="mt-2 text-sm text-neutral-500">Elige algo rico del menú para empezar.</p><button onClick={() => setCartOpen(false)} className="mt-6 rounded-full bg-black px-6 py-3 text-sm font-bold text-white">Volver al menú</button></div></div> : <>
           <div className="flex-1 space-y-4 overflow-y-auto p-6">{cart.map((line) => <div key={line.product.id} className="flex gap-3 border-b border-neutral-100 pb-4"><div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-xl bg-[#fff9bf]">{line.product.image_url ? <img src={line.product.image_url} alt={line.product.name} className="h-full w-full object-cover"/> : <Utensils className="text-neutral-300"/>}</div><div className="min-w-0 flex-1"><div className="text-sm font-bold">{line.product.name}</div><div className="mt-1 text-xs text-neutral-500">{money(line.product.price)} c/u</div><div className="mt-3 flex items-center gap-3"><button onClick={() => changeQuantity(line.product.id, -1)} className="grid h-7 w-7 place-items-center rounded-full border border-neutral-200"><Minus size={13}/></button><span className="text-sm font-bold">{line.quantity}</span><button onClick={() => changeQuantity(line.product.id, 1)} className="grid h-7 w-7 place-items-center rounded-full border border-neutral-200"><Plus size={13}/></button><button onClick={() => remove(line.product.id)} className="ml-auto text-neutral-400 hover:text-red-600" aria-label="Eliminar"><Trash2 size={16}/></button></div></div><div className="text-sm font-black">{money(line.product.price * line.quantity)}</div></div>)}</div>
