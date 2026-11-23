@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { ReactNode, useState } from 'react';
-import { LayoutDashboard, Package, Tags, ClipboardList, Truck, Users, Settings, X, Menu, ArrowLeft, LogOut } from 'lucide-react';
+import { LayoutDashboard, Package, Tags, ClipboardList, Truck, Users, Settings, Gift, X, Menu, ArrowLeft, LogOut } from 'lucide-react';
 import { signOut } from '@/app/login/actions';
 
 const items=[
@@ -14,6 +14,7 @@ const items=[
  {href:'/admin/orders',label:'Pedidos',icon:ClipboardList},
  {href:'/admin/delivery',label:'Entregas',icon:Truck},
  {href:'/admin/customers',label:'Clientes',icon:Users},
+ {href:'/admin/loyalty/scan',label:'Fidelización',icon:Gift},
  {href:'/admin/settings',label:'Configuración',icon:Settings},
 ];
 export default function AdminShell({children,logoUrl,storeName}:{children:ReactNode;logoUrl:string|null;storeName:string}){
