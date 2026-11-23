@@ -39,7 +39,7 @@ export default async function Home() {
     const [{ data: categoryRows }, { data: productRows }, { data: settings }, { data: claims }, { data: zones }] = await Promise.all([
       supabase.from('categories').select('id,name').eq('is_active', true).order('sort_order'),
       supabase.from('products').select('id,name,description,price,image_url,category_id,is_featured').eq('is_active', true).order('created_at', { ascending: false }).limit(60),
-      supabase.from('store_settings').select('logo_url').limit(1).maybeSingle(),
+      supabase.from('store_settings').select('logo_url,accepts_delivery,accepts_pickup').limit(1).maybeSingle(),
       supabase.auth.getClaims(),
       supabase.from('delivery_zones').select('id,name,delivery_fee,min_order_amount').eq('is_active', true).order('name'),
     ]);
