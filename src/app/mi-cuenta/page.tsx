@@ -4,6 +4,7 @@ import { ArrowLeft, Clock3, CheckCircle2, Package, QrCode, Stamp, Utensils } fro
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { sendCustomerAccess } from './actions';
 import MobileBottomNav from '../mobile-bottom-nav';
+import CustomerQrScanner from './customer-qr-scanner';
 
 const statusLabels: Record<string, string> = {
   pending: 'Pendiente', confirmed: 'Confirmado', preparing: 'En preparación',
@@ -14,7 +15,7 @@ const statusStyles: Record<string, string> = {
   out_for_delivery: 'bg-blue-50 text-blue-700', ready: 'bg-blue-50 text-blue-700',
 };
 
-export default async function CustomerAccountPage({ searchParams }: { searchParams: Promise<{ sent?: string; error?: string }> }) {
+export default async function CustomerAccountPage({ searchParams }: { searchParams: Promise<{ sent?: string; error?: string; scan?: string }> }) {
   const params = await searchParams;
   const supabase = await createSupabaseServerClient();
   if (!supabase) return <main className="min-h-screen grid place-items-center p-6">Servicio temporalmente no disponible.</main>;
@@ -74,6 +75,7 @@ export default async function CustomerAccountPage({ searchParams }: { searchPara
     <div className="mx-auto max-w-5xl">
       <div className="flex flex-wrap items-center justify-between gap-3"><Link href="/" className="inline-flex items-center gap-2 text-xs font-bold text-neutral-500"><ArrowLeft size={15}/> Volver al menú</Link><form action={async () => { 'use server'; const s = await createSupabaseServerClient(); await s?.auth.signOut(); redirect('/mi-cuenta'); }}><button className="text-xs font-bold text-neutral-500 hover:text-black">Cerrar sesión</button></form></div>
       <header className="mt-8"><p className="text-[10px] font-black uppercase tracking-[.2em] text-neutral-400">PAPAMERICANA · MI CUENTA</p><h1 className="mt-2 text-3xl font-black tracking-[-.05em] sm:text-4xl">¡Hola, {customer.full_name.split(' ')[0]}!</h1><p className="mt-2 text-sm text-neutral-500">Aquí puedes revisar tus pedidos y tus beneficios.</p></header>
+      {params.scan === '1' && <CustomerQrScanner/>}
 
       <section id="perfil" className="mt-7 grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
         <article className="overflow-hidden rounded-[24px] bg-[#171717] p-6 text-white sm:p-8">
