@@ -23,13 +23,23 @@ export async function saveProduct(form: FormData) {
   const name = field(form, 'name');
   const price = Number(field(form, 'price'));
   if (!name || !Number.isFinite(price) || price < 0) redirect('/admin/products?error=validation');
+  const image = form.get('image_file');
+  let imageUrl = field(form, 'existing_image_url') || null;
+  if (image instanceof File && image.size > 0) {
+    if (!['image/jpeg','image/png','image/webp'].includes(image.type) || image.size > 5 * 1024 * 1024) redirect('/admin/products?error=image');
+    const ext = image.type === 'image/png' ? 'png' : image.type === 'image/webp' ? 'webp' : 'jpg';
+    const path = `products/${crypto.randomUUID()}.${ext}`;
+    const { error: uploadError } = await supabase.storage.from('product-images').upload(path, image, { contentType: image.type, upsert: false });
+    if (uploadError) redirect('/admin/products?error=upload');
+    imageUrl = supabase.storage.from('product-images').getPublicUrl(path).data.publicUrl;
+  }
   const payload = {
     name,
     slug: slugify(name) + (id ? '' : '-' + crypto.randomUUID().slice(0, 6)),
     category_id: field(form, 'category_id') || null,
     description: field(form, 'description') || null,
     price,
-    image_url: field(form, 'image_url') || null,
+    image_url: imageUrl,
     is_featured: form.get('is_featured') === 'on',
     is_active: form.get('is_active') === 'on',
     stock_mode: 'untracked',
