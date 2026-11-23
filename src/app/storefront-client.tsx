@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import BannerCarousel, { type StoreBanner } from './banner-carousel';
 import {
   Search, ShoppingBag, Menu, X, Plus, Minus, Trash2, ArrowRight,
   ChevronRight, Sparkles, Utensils, Sandwich, Flame, CupSoda,
@@ -17,7 +18,8 @@ export type StoreProduct = {
   description?: string | null;
 };
 
-type Props = { categories: string[]; products: StoreProduct[]; hasLiveProducts: boolean; logoUrl: string | null; isLoggedIn: boolean };
+type DeliveryZone = { id: string; name: string; delivery_fee: number; min_order_amount: number };
+type Props = { categories: string[]; products: StoreProduct[]; hasLiveProducts: boolean; logoUrl: string | null; isLoggedIn: boolean; deliveryZones: DeliveryZone[]; storeOptions: { acceptsDelivery: boolean; acceptsPickup: boolean }; banners: StoreBanner[] };
 type CartLine = { product: StoreProduct; quantity: number };
 
 const money = (value: number) => '$' + Number(value || 0).toFixed(2);
@@ -31,7 +33,7 @@ const iconForCategory = (name: string) => {
   return Utensils;
 };
 
-export default function StorefrontClient({ categories, products, hasLiveProducts, logoUrl, isLoggedIn }: Props) {
+export default function StorefrontClient({ categories, products, hasLiveProducts, logoUrl, isLoggedIn, deliveryZones, storeOptions, banners }: Props) {
   const [activeCategory, setActiveCategory] = useState('Todos');
   const [query, setQuery] = useState('');
   const [cartOpen, setCartOpen] = useState(false);
@@ -102,25 +104,7 @@ export default function StorefrontClient({ categories, products, hasLiveProducts
       </header>
 
       <div className="mx-auto max-w-[1380px] px-4 pb-16 pt-5 sm:px-7 lg:px-10 lg:pt-7">
-        <section className="relative isolate min-h-[330px] overflow-hidden rounded-[24px] bg-[#ffe600] sm:min-h-[370px] lg:min-h-[410px]">
-          <div className="absolute -right-20 -top-32 h-[450px] w-[450px] rounded-full border-[55px] border-white/25"/>
-          <div className="absolute -bottom-28 right-[22%] h-[280px] w-[280px] rounded-full bg-[#f0b900]/50 blur-2xl"/>
-          <div className="relative z-10 flex min-h-[330px] flex-col justify-center px-6 py-9 sm:min-h-[370px] sm:px-10 lg:min-h-[410px] lg:w-[52%] lg:px-14">
-            <span className="mb-4 inline-flex w-fit items-center gap-2 rounded-full bg-black px-3.5 py-2 text-[9px] font-black uppercase tracking-[.17em] text-white"><Sparkles size={12}/> ¡Antojo resuelto!</span>
-            <h1 className="max-w-[560px] text-[clamp(3rem,7vw,6.4rem)] font-black leading-[.82] tracking-[-.075em] text-black">Le damos estilo<br/><span className="text-white">a tus papas fritas.</span></h1>
-            <p className="mt-5 max-w-[330px] text-sm font-semibold leading-5 text-black/75">Papas rústicas, burguers, hotdogs y bebidas para disfrutar a tu manera.</p>
-            <a href="#catalogo" className="mt-6 inline-flex w-fit items-center gap-3 rounded-full bg-black px-6 py-3.5 text-xs font-black text-white transition hover:translate-y-[-2px] hover:bg-neutral-800">Ver menú <ArrowRight size={16}/></a>
-          </div>
-          <div className="pointer-events-none absolute bottom-0 right-0 top-0 hidden w-[56%] lg:block">
-            <div className="absolute right-[7%] top-[10%] h-[310px] w-[310px] rounded-full border-[34px] border-white/30 bg-[#f5bd00]/40"/>
-            <div className="absolute right-[20%] top-[14%] grid h-[280px] w-[360px] rotate-[-4deg] place-items-center rounded-[42px] border border-white/70 bg-white/25 shadow-[0_24px_50px_rgba(0,0,0,.09)]">
-              <div className="grid h-[215px] w-[290px] place-items-center rounded-[30px] bg-white shadow-xl"><Utensils size={116} strokeWidth={1.3} className="text-[#171717]"/><span className="text-[12px] font-black uppercase tracking-[.3em]">PAPAMERICANA</span></div>
-            </div>
-            <div className="absolute right-[65%] top-[20%] grid h-[76px] w-[76px] rotate-[-10deg] place-items-center rounded-2xl bg-white shadow-xl"><Sandwich size={34}/></div>
-            <div className="absolute right-[4%] top-[56%] grid h-[82px] w-[82px] rotate-[9deg] place-items-center rounded-2xl bg-black text-[#ffe600] shadow-xl"><Flame size={36}/></div>
-            <div className="absolute bottom-[7%] right-[42%] grid h-[72px] w-[72px] rotate-[8deg] place-items-center rounded-2xl bg-white shadow-xl"><CupSoda size={34}/></div>
-          </div>
-        </section>
+        {banners.length ? <BannerCarousel slides={banners}/> : <section className="rounded-[24px] bg-[#ffe600] px-8 py-20 text-center"><h1 className="text-5xl font-black">PAPAMERICANA</h1><p className="mt-3 font-bold">Agrega tus diapositivas desde Administración → Banners.</p></section>}
 
         <section id="categorias" className="scroll-mt-28 pt-9">
           <div className="mb-4 flex items-end justify-between"><div><p className="text-[9px] font-black uppercase tracking-[.2em] text-neutral-400">Algo rico te espera</p><h2 className="mt-1 text-xl font-black tracking-[-.04em] sm:text-2xl">Explora nuestro menú</h2></div><button onClick={() => { setActiveCategory('Todos'); document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-[11px] font-extrabold text-neutral-500 hover:text-black">Ver todo <ArrowRight size={13} className="ml-1 inline"/></button></div>
