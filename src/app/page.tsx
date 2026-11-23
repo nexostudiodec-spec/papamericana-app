@@ -40,7 +40,7 @@ export default async function Home() {
     ]);
 
     logoUrl = settings?.logo_url ?? null;
-    isLoggedIn = Boolean(claims?.data?.claims?.sub);
+    isLoggedIn = Boolean(claims?.claims?.sub);
     if (productRows?.length && categoryRows?.length) categories = ['Todos', ...categoryRows.map((category) => category.name)];
     if (productRows?.length) {
       const categoryNames = new Map((categoryRows ?? []).map((category) => [category.id, category.name]));
