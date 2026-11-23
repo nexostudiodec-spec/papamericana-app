@@ -3,7 +3,8 @@ import { revalidatePath } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 const allowed=['pending','confirmed','preparing','ready','out_for_delivery','completed','cancelled'];
-export async function updateOrderStatus(formData:FormData){
+type UpdateOrderStatusResult = { ok: boolean; error?: string };
+export async function updateOrderStatus(formData:FormData): Promise<UpdateOrderStatusResult> {
  const s=await createSupabaseServerClient();
  if(!s)return {ok:false,error:'config'};
  const {data}=await s.auth.getClaims();
